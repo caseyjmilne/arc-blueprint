@@ -113,6 +113,30 @@ class Field
         return $this->key;
     }
     
+    public function getLabel()
+    {
+        return $this->getAttribute('label', ucfirst($this->key));
+    }
+    
+    public function isRequired()
+    {
+        return $this->getAttribute('required', false);
+    }
+    
+    public function getValidation()
+    {
+        $validation = [];
+        
+        if ($maxLength = $this->getAttribute('maxLength')) {
+            $validation['max_length'] = $maxLength;
+        }
+        
+        // Add other validation rules as needed
+        // Example: min_length, pattern, etc.
+        
+        return !empty($validation) ? $validation : null;
+    }
+    
     public function getAttributes()
     {
         return $this->attributes;

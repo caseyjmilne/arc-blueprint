@@ -39,6 +39,7 @@ class Blueprint
     private function loadClasses()
     {
         require_once ARC_BLUEPRINT_PATH . 'includes/Field.php';
+        require_once ARC_BLUEPRINT_PATH . 'includes/Forms/FormHelper.php';
         require_once ARC_BLUEPRINT_PATH . 'helpers.php';
     }
     
