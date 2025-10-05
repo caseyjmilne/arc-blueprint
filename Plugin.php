@@ -32,14 +32,37 @@ class Blueprint
     
     private function __construct()
     {
-        $this->loadClasses();
+        $this->registerAutoloader();
+        $this->loadHelpers();
         $this->init();
     }
-    
-    private function loadClasses()
+
+    private function registerAutoloader()
     {
-        require_once ARC_BLUEPRINT_PATH . 'includes/Field.php';
-        require_once ARC_BLUEPRINT_PATH . 'includes/Forms/FormHelper.php';
+        spl_autoload_register(function ($class) {
+            // Only autoload classes in our namespace
+            if (strpos($class, 'ARC\\Blueprint\\') !== 0) {
+                return;
+            }
+
+            // Remove namespace prefix
+            $class = str_replace('ARC\\Blueprint\\', '', $class);
+
+            // Convert namespace separators to directory separators
+            $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+
+            // Build the file path
+            $file = ARC_BLUEPRINT_PATH . 'includes' . DIRECTORY_SEPARATOR . $class . '.php';
+
+            // If the file exists, require it
+            if (file_exists($file)) {
+                require_once $file;
+            }
+        });
+    }
+
+    private function loadHelpers()
+    {
         require_once ARC_BLUEPRINT_PATH . 'helpers.php';
     }
     
@@ -47,6 +70,10 @@ class Blueprint
     {
         add_action('arc_gateway_collection_registered', [$this, 'handleCollectionRegistration'], 10, 3);
         add_filter('arc_blueprint_get_fields', [$this, 'getFields'], 10, 1);
+
+        // Initialize admin page
+        new AdminPage();
+
         do_action('arc_blueprint_loaded');
     }
     
