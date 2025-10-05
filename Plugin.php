@@ -65,7 +65,15 @@ class Blueprint
     {
         require_once ARC_BLUEPRINT_PATH . 'helpers.php';
     }
-    
+
+    public function loadTestSchemas()
+    {
+        require_once ARC_BLUEPRINT_PATH . 'test/Ticket.php';
+        require_once ARC_BLUEPRINT_PATH . 'test/TicketCollection.php';
+        require_once ARC_BLUEPRINT_PATH . 'test/TicketSchema.php';
+        \ARC\Blueprint\Test\TicketSchema::register('ticket');
+    }
+
     private function init()
     {
         add_action('arc_gateway_collection_registered', [$this, 'handleCollectionRegistration'], 10, 3);
@@ -73,6 +81,12 @@ class Blueprint
 
         // Initialize admin page
         new AdminPage();
+
+        // Initialize REST API routes
+        new SchemaRoutes();
+
+        // Load test schemas after Eloquent is booted
+        add_action('arc_forge_eloquent_booted', [$this, 'loadTestSchemas']);
 
         do_action('arc_blueprint_loaded');
     }

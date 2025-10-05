@@ -5,23 +5,22 @@ namespace ARC\Blueprint;
 class SchemaRegistry
 {
     /**
-     * Registered schemas
+     * Registered schemas (key => class)
      *
      * @var array
      */
     private static $schemas = [];
 
     /**
-     * Register a schema
+     * Register a schema with a key
      *
-     * @param string $schemaClass
+     * @param string $key Schema key
+     * @param string $schemaClass Schema class name
      * @return void
      */
-    public static function register($schemaClass)
+    public static function register($key, $schemaClass)
     {
-        if (!in_array($schemaClass, self::$schemas)) {
-            self::$schemas[] = $schemaClass;
-        }
+        self::$schemas[$key] = $schemaClass;
     }
 
     /**
@@ -35,14 +34,25 @@ class SchemaRegistry
     }
 
     /**
-     * Check if a schema is registered
+     * Get a schema by key
      *
-     * @param string $schemaClass
+     * @param string $key
+     * @return string|null Schema class name or null if not found
+     */
+    public static function get($key)
+    {
+        return self::$schemas[$key] ?? null;
+    }
+
+    /**
+     * Check if a schema is registered by key
+     *
+     * @param string $key
      * @return bool
      */
-    public static function has($schemaClass)
+    public static function has($key)
     {
-        return in_array($schemaClass, self::$schemas);
+        return isset(self::$schemas[$key]);
     }
 
     /**

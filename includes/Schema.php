@@ -5,19 +5,28 @@ namespace ARC\Blueprint;
 abstract class Schema
 {
     /**
-     * The Eloquent model class reference
+     * The Collection class reference
      *
      * @var string
      */
-    protected $model;
+    protected $collection;
 
     /**
-     * Register this schema
+     * Register this schema with a key
      *
+     * @param string $key Schema key (lowercase with underscores only)
      * @return void
+     * @throws \InvalidArgumentException
      */
-    public static function register()
+    public static function register($key)
     {
-        SchemaRegistry::register(static::class);
+        // Validate key format
+        if (!preg_match('/^[a-z_]+$/', $key)) {
+            throw new \InvalidArgumentException(
+                "Schema key must be lowercase letters and underscores only. Got: {$key}"
+            );
+        }
+
+        SchemaRegistry::register($key, static::class);
     }
 }

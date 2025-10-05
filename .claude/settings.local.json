@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(mkdir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npm install)",
+      "Read(//c/Users/HP/Local Sites/trackify/app/public/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

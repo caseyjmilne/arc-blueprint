@@ -10,6 +10,7 @@ class AdminPage
     public function __construct()
     {
         add_action('admin_menu', [$this, 'addMenuPage']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
     }
 
     /**
@@ -29,13 +30,66 @@ class AdminPage
     }
 
     /**
+     * Enqueue scripts and styles for the admin page
+     */
+    public function enqueueScripts($hook)
+    {
+        // Only load on our admin page
+        if ($hook !== 'toplevel_page_arc-blueprint') {
+            return;
+        }
+
+        $asset_file = ARC_BLUEPRINT_PATH . 'apps/blueprint-forms/build/index.asset.php';
+
+        if (!file_exists($asset_file)) {
+            return;
+        }
+
+        $asset = require $asset_file;
+        $build_url = ARC_BLUEPRINT_URL . 'apps/blueprint-forms/build/';
+
+        // Enqueue our React app
+        wp_enqueue_script(
+            'arc-blueprint-forms',
+            $build_url . 'index.js',
+            $asset['dependencies'],
+            $asset['version'],
+            true
+        );
+
+        // Localize script with WordPress REST API settings
+        wp_localize_script('arc-blueprint-forms', 'wpApiSettings', [
+            'root' => esc_url_raw(rest_url()),
+            'nonce' => wp_create_nonce('wp_rest'),
+        ]);
+
+        // Enqueue CSS
+        wp_enqueue_style(
+            'arc-blueprint-forms',
+            $build_url . 'index.css',
+            [],
+            $asset['version']
+        );
+    }
+
+    /**
      * Render the admin page
      */
     public function renderPage()
     {
+        $schemas = SchemaRegistry::all();
         ?>
         <div class="wrap">
             <h1>ARC Blueprint</h1>
+
+            <h2>Registered Schemas</h2>
+            <ul>
+                <?php foreach ($schemas as $schema): ?>
+                    <li><?php echo esc_html($schema); ?></li>
+                <?php endforeach; ?>
+            </ul>
+
+            <div id="arc-blueprint-forms-root"></div>
         </div>
         <?php
     }
