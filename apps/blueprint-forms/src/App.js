@@ -1,12 +1,14 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useForm } from 'react-hook-form';
-import { getSchema } from './services/api';
+import { getSchema, createRecord } from './services/api';
 
 const App = () => {
   const [schema, setSchema] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [success, setSuccess] = useState(null);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   useEffect(() => {
     loadSchema();
@@ -16,6 +18,7 @@ const App = () => {
     try {
       setLoading(true);
       const response = await getSchema('ticket');
+      console.log('Schema response:', response);
       setSchema(response.data);
       setError(null);
     } catch (err) {
@@ -25,9 +28,28 @@ const App = () => {
     }
   };
 
-  const onSubmit = (data) => {
-    console.log('Form data:', data);
-    alert('Form submitted! Check console for data.');
+  const onSubmit = async (data) => {
+    if (!schema?.collection?.routes?.endpoint) {
+      setError('No endpoint available for submission');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setError(null);
+      setSuccess(null);
+
+      const response = await createRecord(schema.collection.routes.endpoint, data);
+
+      setSuccess('Ticket created successfully!');
+      reset(); // Clear form
+      console.log('Created ticket:', response);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Failed to create ticket');
+      console.error('Submit error:', err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getInputType = (fieldName, casts = {}) => {
@@ -72,6 +94,18 @@ const App = () => {
         <h2 className="text-2xl font-bold mb-2">{schema.name}</h2>
         <p className="text-sm text-gray-600 mb-6">Model: {schema.collection.model.class}</p>
 
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {success}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {schema.collection.model.fillable.map((fieldName) => {
             const inputType = getInputType(fieldName, schema.collection.model.casts);
@@ -113,9 +147,10 @@ const App = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            disabled={submitting}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Submit
+            {submitting ? 'Creating...' : 'Create Ticket'}
           </button>
         </form>
       </div>

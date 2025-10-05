@@ -25,4 +25,19 @@ export const getSchema = async (key) => {
   return response.data;
 };
 
+/**
+ * Create a new record using the collection endpoint
+ * @param {string} endpoint - Full API endpoint URL
+ * @param {object} data - Data to create
+ */
+export const createRecord = async (endpoint, data) => {
+  const response = await axios.post(endpoint, data, {
+    headers: {
+      'X-WP-Nonce': window.wpApiSettings?.nonce || '',
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.data;
+};
+
 export default api;

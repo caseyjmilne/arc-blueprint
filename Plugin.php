@@ -71,6 +71,13 @@ class Blueprint
         require_once ARC_BLUEPRINT_PATH . 'test/Ticket.php';
         require_once ARC_BLUEPRINT_PATH . 'test/TicketCollection.php';
         require_once ARC_BLUEPRINT_PATH . 'test/TicketSchema.php';
+
+        // Register collection with arc-gateway
+        if (class_exists('\ARC\Gateway\Collection')) {
+            \ARC\Blueprint\Test\TicketCollection::register();
+        }
+
+        // Register schema with blueprint
         \ARC\Blueprint\Test\TicketSchema::register('ticket');
     }
 
