@@ -32,21 +32,80 @@ class Blueprint
     
     private function __construct()
     {
-        $this->loadClasses();
+        $this->registerAutoloader();
+        $this->loadHelpers();
         $this->init();
     }
-    
-    private function loadClasses()
+
+    private function registerAutoloader()
     {
-        require_once ARC_BLUEPRINT_PATH . 'includes/Field.php';
-        require_once ARC_BLUEPRINT_PATH . 'includes/Forms/FormHelper.php';
-        require_once ARC_BLUEPRINT_PATH . 'helpers.php';
+        spl_autoload_register(function ($class) {
+            // Only autoload classes in our namespace
+            if (strpos($class, 'ARC\\Blueprint\\') !== 0) {
+                return;
+            }
+
+            // Remove namespace prefix
+            $class = str_replace('ARC\\Blueprint\\', '', $class);
+
+            // Convert namespace separators to directory separators
+            $class = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+
+            // Build the file path
+            $file = ARC_BLUEPRINT_PATH . 'includes' . DIRECTORY_SEPARATOR . $class . '.php';
+
+            // If the file exists, require it
+            if (file_exists($file)) {
+                require_once $file;
+            }
+        });
     }
-    
+
+    private function loadHelpers()
+    {
+        require_once ARC_BLUEPRINT_PATH . 'includes/helpers.php';
+    }
+
+    public function loadTestSchemas()
+    {
+        require_once ARC_BLUEPRINT_PATH . 'test/Ticket.php';
+        require_once ARC_BLUEPRINT_PATH . 'test/TicketCollection.php';
+        require_once ARC_BLUEPRINT_PATH . 'test/TicketSchema.php';
+        require_once ARC_BLUEPRINT_PATH . 'test/TicketReply.php';
+        require_once ARC_BLUEPRINT_PATH . 'test/TicketReplyCollection.php';
+        require_once ARC_BLUEPRINT_PATH . 'test/TicketReplySchema.php';
+
+        // Register collections with arc-gateway
+        if (class_exists('\ARC\Gateway\Collection')) {
+            \ARC\Blueprint\Test\TicketCollection::register();
+            \ARC\Blueprint\Test\TicketReplyCollection::register();
+        }
+
+        // Register schemas with blueprint
+        \ARC\Blueprint\Test\TicketSchema::register('ticket');
+        \ARC\Blueprint\Test\TicketReplySchema::register('ticket_reply');
+    }
+
     private function init()
     {
         add_action('arc_gateway_collection_registered', [$this, 'handleCollectionRegistration'], 10, 3);
         add_filter('arc_blueprint_get_fields', [$this, 'getFields'], 10, 1);
+
+        // Initialize admin page
+        new AdminPage();
+
+        // Initialize REST API routes
+        new SchemaRoutes();
+
+        // Initialize form renderer
+        Forms\Render::init();
+
+        // Initialize form shortcode
+        Forms\Shortcode::init();
+
+        // Load test schemas after Eloquent is booted
+        add_action('arc_forge_eloquent_booted', [$this, 'loadTestSchemas']);
+
         do_action('arc_blueprint_loaded');
     }
     

@@ -1,0 +1,66 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - '*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install and build React app
+        run: |
+          cd apps/blueprint-forms
+          npm ci
+          npm run build
+
+      - name: Setup PHP
+        if: hashFiles('composer.json') != ''
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install Composer dependencies
+        if: hashFiles('composer.json') != ''
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Create clean build directory
+        run: |
+          mkdir -p /tmp/arc-blueprint
+          rsync -av --exclude-from='.distignore' --exclude='.git' ./ /tmp/arc-blueprint/
+
+      - name: Create zip from build directory
+        run: |
+          cd /tmp
+          zip -r $GITHUB_WORKSPACE/arc-blueprint.zip arc-blueprint
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: arc-blueprint.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: arc-blueprint
+          path: arc-blueprint.zip
+          retention-days: 30

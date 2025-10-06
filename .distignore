@@ -1,0 +1,55 @@
+# Development files
+node_modules/
+.git/
+.github/
+.gitignore
+.distignore
+.claude/
+
+# Build tools
+package.json
+package-lock.json
+composer.json
+composer.lock
+webpack.config.js
+postcss.config.js
+
+# Source files - only app source, not root
+apps/*/src/
+apps/*/node_modules/
+apps/*/package.json
+apps/*/package-lock.json
+apps/*/webpack.config.js
+apps/*/postcss.config.js
+
+# Testing
+tests/
+test/
+phpunit.xml
+.phpunit.result.cache
+phpcs.xml
+
+# Documentation
+README.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.travis.yml
+.gitlab-ci.yml
+bitbucket-pipelines.yml
+
+# Other
+.editorconfig
+.eslintrc
+.prettierrc
+*.log
+*.map
