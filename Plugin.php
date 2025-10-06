@@ -63,7 +63,7 @@ class Blueprint
 
     private function loadHelpers()
     {
-        require_once ARC_BLUEPRINT_PATH . 'helpers.php';
+        require_once ARC_BLUEPRINT_PATH . 'includes/helpers.php';
     }
 
     public function loadTestSchemas()
