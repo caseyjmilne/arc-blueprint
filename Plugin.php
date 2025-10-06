@@ -100,6 +100,9 @@ class Blueprint
         // Initialize form renderer
         Forms\Render::init();
 
+        // Initialize form shortcode
+        Forms\Shortcode::init();
+
         // Load test schemas after Eloquent is booted
         add_action('arc_forge_eloquent_booted', [$this, 'loadTestSchemas']);
 
