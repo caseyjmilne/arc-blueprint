@@ -5,19 +5,18 @@ namespace ARC\Blueprint\Forms;
 class Render
 {
     private static $forms_registered = false;
+    private static $scripts_enqueued = false;
 
     /**
      * Render a Blueprint form trigger element
-     * 
-     * @param string $schema The schema key (e.g., 'ticket')
-     * @param int|null $record_id Optional record ID for edit mode
-     * @param array $attributes Additional HTML attributes
-     * @return void
      */
     public static function form($schema, $record_id = null, $attributes = [])
     {
         // Flag that we need to enqueue scripts
         self::$forms_registered = true;
+        
+        // Enqueue immediately if we haven't yet
+        self::enqueue_scripts();
 
         // Build data attributes
         $data_attrs = [
@@ -46,30 +45,31 @@ class Render
     }
 
     /**
-     * Check if forms have been registered on this page
-     */
-    public static function has_forms()
-    {
-        return self::$forms_registered;
-    }
-
-    /**
-     * Initialize the form renderer hooks
+     * Initialize the form renderer
      */
     public static function init()
     {
-        // Enqueue on both frontend and admin
-        add_action('wp_enqueue_scripts', [__CLASS__, 'maybe_enqueue_scripts'], 999);
-        add_action('admin_enqueue_scripts', [__CLASS__, 'maybe_enqueue_scripts'], 999);
+        // Hook into footer to ensure scripts are loaded even if enqueued late
+        add_action('wp_footer', [__CLASS__, 'ensure_scripts_loaded'], 1);
+        add_action('admin_footer', [__CLASS__, 'ensure_scripts_loaded'], 1);
     }
 
     /**
-     * Conditionally enqueue scripts if forms are present
+     * Ensure scripts are loaded in footer if forms were registered
      */
-    public static function maybe_enqueue_scripts()
+    public static function ensure_scripts_loaded()
     {
-        // Only enqueue if forms were actually rendered
-        if (!self::$forms_registered) {
+        if (self::$forms_registered && !self::$scripts_enqueued) {
+            self::enqueue_scripts();
+        }
+    }
+
+    /**
+     * Enqueue the form scripts and styles
+     */
+    private static function enqueue_scripts()
+    {
+        if (self::$scripts_enqueued) {
             return;
         }
 
@@ -101,5 +101,7 @@ class Render
             [],
             $asset['version']
         );
+
+        self::$scripts_enqueued = true;
     }
 }

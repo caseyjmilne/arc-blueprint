@@ -97,6 +97,9 @@ class Blueprint
         // Initialize REST API routes
         new SchemaRoutes();
 
+        // Initialize form renderer
+        Forms\Render::init();
+
         // Load test schemas after Eloquent is booted
         add_action('arc_forge_eloquent_booted', [$this, 'loadTestSchemas']);
 
