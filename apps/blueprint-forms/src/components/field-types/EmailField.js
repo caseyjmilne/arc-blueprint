@@ -1,4 +1,4 @@
-const TextField = ({ fieldName, fieldConfig, inputType, register, error }) => {
+const EmailField = ({ fieldName, fieldConfig, register, error }) => {
   return (
     <div>
       <label
@@ -9,10 +9,10 @@ const TextField = ({ fieldName, fieldConfig, inputType, register, error }) => {
         {fieldConfig.required && <span className="text-red-500 ml-1">*</span>}
       </label>
       <input
-        type={inputType}
+        type="email"
         id={fieldName}
         {...register(fieldName)}
-        placeholder={fieldConfig.placeholder || ''}
+        placeholder={fieldConfig.placeholder || 'Enter email address'}
         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
           error
             ? 'border-red-500 focus:ring-red-500'
@@ -26,4 +26,4 @@ const TextField = ({ fieldName, fieldConfig, inputType, register, error }) => {
   );
 };
 
-export default TextField;
+export default EmailField;

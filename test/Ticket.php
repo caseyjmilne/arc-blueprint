@@ -24,6 +24,7 @@ class Ticket extends Model
         'status',
         'priority',
         'assigned_to',
+        'contact_email',
     ];
 
     /**

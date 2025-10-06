@@ -1,7 +1,9 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { getSchema, createRecord, getRecord, updateRecord } from './services/api';
-import { SelectField, TextField, TextareaField, CheckboxField } from './components/field-types';
+import { SelectField, TextField, TextareaField, CheckboxField, EmailField } from './components/field-types';
+import { generateZodSchema } from './utils/zodSchemaGenerator';
 
 const App = ({ schemaKey, recordId }) => {
   const [schema, setSchema] = useState(null);
@@ -10,7 +12,10 @@ const App = ({ schemaKey, recordId }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [validationSchema, setValidationSchema] = useState(null);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    resolver: validationSchema ? zodResolver(validationSchema) : undefined,
+  });
 
   useEffect(() => {
     if (schemaKey) {
@@ -31,6 +36,11 @@ const App = ({ schemaKey, recordId }) => {
       const response = await getSchema(schemaKey);
       console.log('Schema response:', response);
       setSchema(response.data);
+
+      // Generate Zod validation schema
+      const zodSchema = generateZodSchema(response.data);
+      setValidationSchema(zodSchema);
+      console.log('Zod schema generated:', zodSchema);
     } catch (err) {
       const errorMessage = err.response?.status === 404
         ? `Schema "${schemaKey}" not found`
@@ -103,7 +113,6 @@ const App = ({ schemaKey, recordId }) => {
     }
 
     // Infer from field name
-    if (fieldName.includes('email')) return 'email';
     if (fieldName.includes('password')) return 'password';
     if (fieldName.includes('date')) return 'date';
     if (fieldName.includes('time')) return 'time';
@@ -176,6 +185,7 @@ const App = ({ schemaKey, recordId }) => {
             // Check if custom type is specified in config
             const configType = fieldConfig.type;
             const inputType = getInputType(fieldName, schema.collection.model.casts);
+            const fieldError = errors[fieldName];
 
             // Render based on configured type or inferred type
             if (configType === 'select') {
@@ -185,6 +195,19 @@ const App = ({ schemaKey, recordId }) => {
                   fieldName={fieldName}
                   fieldConfig={fieldConfig}
                   register={register}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'email' || fieldName.includes('email')) {
+              return (
+                <EmailField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  error={fieldError}
                 />
               );
             }
@@ -196,6 +219,7 @@ const App = ({ schemaKey, recordId }) => {
                   fieldName={fieldName}
                   fieldConfig={fieldConfig}
                   register={register}
+                  error={fieldError}
                 />
               );
             }
@@ -207,6 +231,7 @@ const App = ({ schemaKey, recordId }) => {
                   fieldName={fieldName}
                   fieldConfig={fieldConfig}
                   register={register}
+                  error={fieldError}
                 />
               );
             }
@@ -219,6 +244,7 @@ const App = ({ schemaKey, recordId }) => {
                 fieldConfig={fieldConfig}
                 inputType={inputType}
                 register={register}
+                error={fieldError}
               />
             );
           })}
