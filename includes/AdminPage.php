@@ -84,12 +84,20 @@ class AdminPage
 
             <h2>Registered Schemas</h2>
             <ul>
-                <?php foreach ($schemas as $schema): ?>
-                    <li><?php echo esc_html($schema); ?></li>
+                <?php foreach ($schemas as $key => $schemaClass): ?>
+                    <li><strong><?php echo esc_html($key); ?>:</strong> <?php echo esc_html($schemaClass); ?></li>
                 <?php endforeach; ?>
             </ul>
 
-            <div id="arc-blueprint-forms-root"></div>
+            <h2>Test Forms</h2>
+
+            <h3>Create Mode: "ticket"</h3>
+            <div data-blueprint-form data-schema="ticket"></div>
+
+            <hr style="margin: 40px 0;">
+
+            <h3>Edit Mode: "ticket" (Record ID: 2)</h3>
+            <div data-blueprint-form data-schema="ticket" data-record-id="2"></div>
         </div>
         <?php
     }

@@ -4,14 +4,14 @@ namespace ARC\Blueprint\Test;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Ticket extends Model
+class TicketReply extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'tickets';
+    protected $table = 'ticket_replies';
 
     /**
      * The attributes that are mass assignable.
@@ -19,11 +19,9 @@ class Ticket extends Model
      * @var array
      */
     protected $fillable = [
-        'title',
-        'description',
-        'status',
-        'priority',
-        'assigned_to',
+        'ticket_id',
+        'message',
+        'author_id',
     ];
 
     /**
@@ -32,15 +30,17 @@ class Ticket extends Model
      * @var array
      */
     protected $casts = [
+        'ticket_id' => 'integer',
+        'author_id' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     /**
-     * Get the replies for the ticket.
+     * Get the ticket that owns the reply.
      */
-    public function replies()
+    public function ticket()
     {
-        return $this->hasMany(TicketReply::class);
+        return $this->belongsTo(Ticket::class);
     }
 }

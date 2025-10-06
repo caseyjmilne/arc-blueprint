@@ -1,28 +1,63 @@
 import { useState, useEffect } from '@wordpress/element';
 import { useForm } from 'react-hook-form';
-import { getSchema, createRecord } from './services/api';
+import { getSchema, createRecord, getRecord, updateRecord } from './services/api';
+import { SelectField, TextField, TextareaField, CheckboxField } from './components/field-types';
 
-const App = () => {
+const App = ({ schemaKey, recordId }) => {
   const [schema, setSchema] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
   useEffect(() => {
-    loadSchema();
-  }, []);
+    if (schemaKey) {
+      loadSchema();
+    }
+  }, [schemaKey]);
+
+  useEffect(() => {
+    if (recordId && schema) {
+      loadRecord();
+    }
+  }, [recordId, schema]);
 
   const loadSchema = async () => {
     try {
       setLoading(true);
-      const response = await getSchema('ticket');
+      setError(null);
+      const response = await getSchema(schemaKey);
       console.log('Schema response:', response);
       setSchema(response.data);
-      setError(null);
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err.response?.status === 404
+        ? `Schema "${schemaKey}" not found`
+        : err.message || 'Failed to load schema';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadRecord = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getRecord(schema.collection.routes.endpoint, recordId);
+      console.log('Record loaded:', response);
+
+      // Populate form with existing data
+      if (response.data) {
+        reset(response.data);
+        setIsEditMode(true);
+      }
+    } catch (err) {
+      const errorMessage = err.response?.status === 404
+        ? `Record #${recordId} not found`
+        : err.message || 'Failed to load record';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -39,13 +74,19 @@ const App = () => {
       setError(null);
       setSuccess(null);
 
-      const response = await createRecord(schema.collection.routes.endpoint, data);
+      let response;
+      if (isEditMode && recordId) {
+        response = await updateRecord(schema.collection.routes.endpoint, recordId, data);
+        setSuccess('Record updated successfully!');
+      } else {
+        response = await createRecord(schema.collection.routes.endpoint, data);
+        setSuccess('Record created successfully!');
+        reset(); // Clear form only on create
+      }
 
-      setSuccess('Ticket created successfully!');
-      reset(); // Clear form
-      console.log('Created ticket:', response);
+      console.log('Save response:', response);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to create ticket');
+      setError(err.response?.data?.message || err.message || 'Failed to save record');
       console.error('Submit error:', err);
     } finally {
       setSubmitting(false);
@@ -70,22 +111,38 @@ const App = () => {
     return 'text';
   };
 
+  if (!schemaKey) {
+    return (
+      <div className="p-6">
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+          No schema key provided. Add data-schema attribute.
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
-    return <div className="p-6">Loading...</div>;
+    return <div className="p-6">Loading schema "{schemaKey}"...</div>;
   }
 
   if (error) {
     return (
       <div className="p-6">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
+          <strong>Error:</strong> {error}
         </div>
       </div>
     );
   }
 
   if (!schema || !schema.collection?.model?.fillable) {
-    return <div className="p-6">No schema found</div>;
+    return (
+      <div className="p-6">
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+          Schema "{schemaKey}" loaded but has no fillable fields.
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -108,40 +165,61 @@ const App = () => {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {schema.collection.model.fillable.map((fieldName) => {
+            // Check if field has configuration
+            const fieldConfig = schema.fields?.[fieldName] || {};
+
+            // Skip hidden fields
+            if (fieldConfig.hidden) {
+              return null;
+            }
+
+            // Check if custom type is specified in config
+            const configType = fieldConfig.type;
             const inputType = getInputType(fieldName, schema.collection.model.casts);
 
-            return (
-              <div key={fieldName}>
-                <label
-                  htmlFor={fieldName}
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  {fieldName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                </label>
+            // Render based on configured type or inferred type
+            if (configType === 'select') {
+              return (
+                <SelectField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                />
+              );
+            }
 
-                {inputType === 'checkbox' ? (
-                  <input
-                    type="checkbox"
-                    id={fieldName}
-                    {...register(fieldName)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                ) : fieldName === 'description' ? (
-                  <textarea
-                    id={fieldName}
-                    {...register(fieldName)}
-                    rows="3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                ) : (
-                  <input
-                    type={inputType}
-                    id={fieldName}
-                    {...register(fieldName)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                )}
-              </div>
+            if (configType === 'textarea' || fieldName === 'description') {
+              return (
+                <TextareaField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                />
+              );
+            }
+
+            if (inputType === 'checkbox') {
+              return (
+                <CheckboxField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                />
+              );
+            }
+
+            // Default to TextField
+            return (
+              <TextField
+                key={fieldName}
+                fieldName={fieldName}
+                fieldConfig={fieldConfig}
+                inputType={inputType}
+                register={register}
+              />
             );
           })}
 
@@ -150,7 +228,7 @@ const App = () => {
             disabled={submitting}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Creating...' : 'Create Ticket'}
+            {submitting ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Record' : 'Create Record')}
           </button>
         </form>
       </div>

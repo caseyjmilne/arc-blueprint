@@ -12,6 +12,20 @@ abstract class Schema
     protected $collection;
 
     /**
+     * Field configuration overrides
+     *
+     * Example:
+     * protected $fields = [
+     *     'priority' => ['hidden' => true],
+     *     'status' => ['type' => 'select', 'options' => ['open', 'closed']],
+     *     'description' => ['type' => 'textarea', 'rows' => 5],
+     * ];
+     *
+     * @var array
+     */
+    protected $fields = [];
+
+    /**
      * Register this schema with a key
      *
      * @param string $key Schema key (lowercase with underscores only)
@@ -28,5 +42,15 @@ abstract class Schema
         }
 
         SchemaRegistry::register($key, static::class);
+    }
+
+    /**
+     * Get field configuration
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->fields;
     }
 }

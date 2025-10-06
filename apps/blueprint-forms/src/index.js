@@ -2,9 +2,15 @@ import { createRoot } from '@wordpress/element';
 import App from './App';
 import './index.css';
 
-const rootElement = document.getElementById('arc-blueprint-forms-root');
+// Find all elements with data-blueprint-form attribute
+const formElements = document.querySelectorAll('[data-blueprint-form]');
 
-if (rootElement) {
-  const root = createRoot(rootElement);
-  root.render(<App />);
-}
+formElements.forEach((element) => {
+  const schemaKey = element.getAttribute('data-schema');
+  const recordId = element.getAttribute('data-record-id');
+
+  if (schemaKey) {
+    const root = createRoot(element);
+    root.render(<App schemaKey={schemaKey} recordId={recordId} />);
+  }
+});

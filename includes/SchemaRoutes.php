@@ -189,6 +189,7 @@ class SchemaRoutes
             'name' => basename(str_replace('\\', '/', $schemaClass)),
             'properties' => $properties,
             'collection' => $collectionData,
+            'fields' => $schema->getFields(),
         ];
     }
 }
