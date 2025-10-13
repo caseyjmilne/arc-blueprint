@@ -25,8 +25,8 @@ class AdminPage
             'manage_options',          // Capability
             'arc-blueprint',           // Menu slug
             [$this, 'renderPage'],     // Callback function
-            'dashicons-admin-generic', // Icon
-            30                         // Position
+            'dashicons-clipboard', // Icon
+            82                         // Position
         );
     }
 
