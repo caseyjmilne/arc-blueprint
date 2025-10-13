@@ -4,7 +4,7 @@ Tags: forms, schema, collections, api, react
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.0.1
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -101,7 +101,10 @@ Currently, forms are displayed in the ARC Blueprint admin page. Future versions 
 
 == Changelog ==
 
-= 0.0.1 =
+= 1.0.1 =
+* Admin added.
+
+= 1.0.0 =
 * Initial release
 * Schema-based architecture
 * Dynamic React form generation
@@ -111,7 +114,7 @@ Currently, forms are displayed in the ARC Blueprint admin page. Future versions 
 
 == Upgrade Notice ==
 
-= 0.0.1 =
+= 1.0.0 =
 Initial release of ARC Blueprint.
 
 == Development ==

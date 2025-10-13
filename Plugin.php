@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ARC Blueprint
  * Description: Field definitions and form management for ARC Framework
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: ARC Software Group
  * Requires PHP: 7.4
  */
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('ARC_BLUEPRINT_VERSION', '1.0.0');
+define('ARC_BLUEPRINT_VERSION', '1.0.1');
 define('ARC_BLUEPRINT_PATH', plugin_dir_path(__FILE__));
 define('ARC_BLUEPRINT_URL', plugin_dir_url(__FILE__));
 
@@ -66,26 +66,6 @@ class Blueprint
         require_once ARC_BLUEPRINT_PATH . 'includes/helpers.php';
     }
 
-    public function loadTestSchemas()
-    {
-        require_once ARC_BLUEPRINT_PATH . 'test/Ticket.php';
-        require_once ARC_BLUEPRINT_PATH . 'test/TicketCollection.php';
-        require_once ARC_BLUEPRINT_PATH . 'test/TicketSchema.php';
-        require_once ARC_BLUEPRINT_PATH . 'test/TicketReply.php';
-        require_once ARC_BLUEPRINT_PATH . 'test/TicketReplyCollection.php';
-        require_once ARC_BLUEPRINT_PATH . 'test/TicketReplySchema.php';
-
-        // Register collections with arc-gateway
-        if (class_exists('\ARC\Gateway\Collection')) {
-            \ARC\Blueprint\Test\TicketCollection::register();
-            \ARC\Blueprint\Test\TicketReplyCollection::register();
-        }
-
-        // Register schemas with blueprint
-        \ARC\Blueprint\Test\TicketSchema::register('ticket');
-        \ARC\Blueprint\Test\TicketReplySchema::register('ticket_reply');
-    }
-
     private function init()
     {
         add_action('arc_gateway_collection_registered', [$this, 'handleCollectionRegistration'], 10, 3);
@@ -102,9 +82,6 @@ class Blueprint
 
         // Initialize form shortcode
         Forms\Shortcode::init();
-
-        // Load test schemas after Eloquent is booted
-        add_action('arc_forge_eloquent_booted', [$this, 'loadTestSchemas']);
 
         do_action('arc_blueprint_loaded');
     }
