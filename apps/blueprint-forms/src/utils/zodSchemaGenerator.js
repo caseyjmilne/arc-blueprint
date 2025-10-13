@@ -41,7 +41,11 @@ export const generateZodSchema = (schema) => {
     } else if (configType === 'email' || fieldName.includes('email')) {
       // Email field: validate format only if not empty
       fieldSchema = z.string().email('Invalid email address').or(z.literal(''));
-    } else if (configType === 'select' || configType === 'textarea') {
+    } else if (configType === 'relation') {
+      // Relation field: typically stores an ID (integer or string depending on DB)
+      // Coerce to number if it's an integer foreign key
+      fieldSchema = z.coerce.number().int().positive();
+    } else if (configType === 'select' || configType === 'textarea' || configType === 'markdown') {
       fieldSchema = z.string();
     } else {
       // Default to string

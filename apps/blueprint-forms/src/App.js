@@ -2,7 +2,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getSchema, createRecord, getRecord, updateRecord } from './services/api';
-import { SelectField, TextField, TextareaField, CheckboxField, EmailField } from './components/field-types';
+import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField } from './components/field-types';
 import { generateZodSchema } from './utils/zodSchemaGenerator';
 
 const App = ({ schemaKey, recordId }) => {
@@ -13,7 +13,7 @@ const App = ({ schemaKey, recordId }) => {
   const [success, setSuccess] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [validationSchema, setValidationSchema] = useState(null);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
     resolver: validationSchema ? zodResolver(validationSchema) : undefined,
   });
 
@@ -188,6 +188,18 @@ const App = ({ schemaKey, recordId }) => {
             const fieldError = errors[fieldName];
 
             // Render based on configured type or inferred type
+            if (configType === 'relation') {
+              return (
+                <RelationField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  error={fieldError}
+                />
+              );
+            }
+
             if (configType === 'select') {
               return (
                 <SelectField
@@ -207,6 +219,20 @@ const App = ({ schemaKey, recordId }) => {
                   fieldName={fieldName}
                   fieldConfig={fieldConfig}
                   register={register}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'markdown') {
+              return (
+                <MarkdownField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
                   error={fieldError}
                 />
               );

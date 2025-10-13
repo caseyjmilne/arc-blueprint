@@ -3,3 +3,5 @@ export { default as TextField } from './TextField';
 export { default as TextareaField } from './TextareaField';
 export { default as CheckboxField } from './CheckboxField';
 export { default as EmailField } from './EmailField';
+export { default as MarkdownField } from './MarkdownField';
+export { default as RelationField } from './RelationField';
