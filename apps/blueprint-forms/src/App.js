@@ -2,7 +2,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getSchema, createRecord, getRecord, updateRecord } from './services/api';
-import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField } from './components/field-types';
+import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField, NumberField, URLField, PasswordField, RangeField, RadioField, ButtonGroupField, WysiwygField } from './components/field-types';
 import { generateZodSchema } from './utils/zodSchemaGenerator';
 
 const App = ({ schemaKey, recordId }) => {
@@ -212,6 +212,32 @@ const App = ({ schemaKey, recordId }) => {
               );
             }
 
+            if (configType === 'radio') {
+              return (
+                <RadioField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'button_group') {
+              return (
+                <ButtonGroupField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
             if (configType === 'email' || fieldName.includes('email')) {
               return (
                 <EmailField
@@ -224,9 +250,35 @@ const App = ({ schemaKey, recordId }) => {
               );
             }
 
+            if (configType === 'url' || fieldName.includes('url') || fieldName.includes('website') || fieldName.includes('link')) {
+              return (
+                <URLField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  error={fieldError}
+                />
+              );
+            }
+
             if (configType === 'markdown') {
               return (
                 <MarkdownField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'wysiwyg') {
+              return (
+                <WysiwygField
                   key={fieldName}
                   fieldName={fieldName}
                   fieldConfig={fieldConfig}
@@ -257,6 +309,44 @@ const App = ({ schemaKey, recordId }) => {
                   fieldName={fieldName}
                   fieldConfig={fieldConfig}
                   register={register}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'number' || inputType === 'number') {
+              return (
+                <NumberField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'password' || inputType === 'password') {
+              return (
+                <PasswordField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'range') {
+              return (
+                <RangeField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
                   error={fieldError}
                 />
               );

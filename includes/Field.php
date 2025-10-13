@@ -99,7 +99,37 @@ class Field
         $this->attributes['helpText'] = $text;
         return $this;
     }
-    
+
+    public function min($value)
+    {
+        $this->attributes['min'] = $value;
+        return $this;
+    }
+
+    public function max($value)
+    {
+        $this->attributes['max'] = $value;
+        return $this;
+    }
+
+    public function step($value)
+    {
+        $this->attributes['step'] = $value;
+        return $this;
+    }
+
+    public function append($text)
+    {
+        $this->attributes['append'] = $text;
+        return $this;
+    }
+
+    public function prepend($text)
+    {
+        $this->attributes['prepend'] = $text;
+        return $this;
+    }
+
     /**
      * Get field metadata
      */
@@ -226,6 +256,11 @@ class Field
             case 'integer':
                 $type = 'INT';
                 break;
+            case 'range':
+                // Range fields can be INT or DECIMAL depending on step
+                $step = $this->getAttribute('step', 1);
+                $type = ($step < 1) ? 'DECIMAL(10,2)' : 'INT';
+                break;
             case 'decimal':
                 $type = 'DECIMAL(10,2)';
                 break;
@@ -272,5 +307,11 @@ Field::registerType('text', Field::class);
 Field::registerType('textarea', Field::class);
 Field::registerType('number', Field::class);
 Field::registerType('email', Field::class);
+Field::registerType('url', Field::class);
+Field::registerType('password', Field::class);
+Field::registerType('range', Field::class);
+Field::registerType('radio', Field::class);
+Field::registerType('button_group', Field::class);
+Field::registerType('wysiwyg', Field::class);
 Field::registerType('date', Field::class);
 Field::registerType('boolean', Field::class);
