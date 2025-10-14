@@ -54,7 +54,7 @@ export const generateZodSchema = (schema) => {
       // Relation field: typically stores an ID (integer or string depending on DB)
       // Coerce to number if it's an integer foreign key
       fieldSchema = z.coerce.number().int().positive();
-    } else if (configType === 'select' || configType === 'radio' || configType === 'button_group' || configType === 'textarea' || configType === 'markdown' || configType === 'wysiwyg') {
+    } else if (configType === 'select' || configType === 'radio' || configType === 'button_group' || configType === 'textarea' || configType === 'markdown' || configType === 'wysiwyg' || configType === 'color') {
       fieldSchema = z.string();
     } else {
       // Default to string

@@ -313,5 +313,6 @@ Field::registerType('range', Field::class);
 Field::registerType('radio', Field::class);
 Field::registerType('button_group', Field::class);
 Field::registerType('wysiwyg', Field::class);
+Field::registerType('color', Field::class);
 Field::registerType('date', Field::class);
 Field::registerType('boolean', Field::class);

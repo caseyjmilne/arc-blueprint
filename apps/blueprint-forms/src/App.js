@@ -2,7 +2,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getSchema, createRecord, getRecord, updateRecord } from './services/api';
-import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField, NumberField, URLField, PasswordField, RangeField, RadioField, ButtonGroupField, WysiwygField } from './components/field-types';
+import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField, NumberField, URLField, PasswordField, RangeField, RadioField, ButtonGroupField, WysiwygField, ColorPickerField, ReadOnlyField, HiddenField } from './components/field-types';
 import { generateZodSchema } from './utils/zodSchemaGenerator';
 
 const App = ({ schemaKey, recordId }) => {
@@ -157,9 +157,6 @@ const App = ({ schemaKey, recordId }) => {
   return (
     <div className="max-w-2xl mx-auto p-6">
       <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-2xl font-bold mb-2">{schema.name}</h2>
-        <p className="text-sm text-gray-600 mb-6">Model: {schema.collection.model.class}</p>
-
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
@@ -348,6 +345,42 @@ const App = ({ schemaKey, recordId }) => {
                   setValue={setValue}
                   watch={watch}
                   error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'color') {
+              return (
+                <ColorPickerField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'readonly') {
+              return (
+                <ReadOnlyField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                />
+              );
+            }
+
+            if (configType === 'hidden') {
+              return (
+                <HiddenField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
                 />
               );
             }

@@ -12,3 +12,6 @@ export { default as RangeField } from './RangeField';
 export { default as RadioField } from './RadioField';
 export { default as ButtonGroupField } from './ButtonGroupField';
 export { default as WysiwygField } from './WysiwygField';
+export { default as ColorPickerField } from './ColorPickerField';
+export { default as ReadOnlyField } from './ReadOnlyField';
+export { default as HiddenField } from './HiddenField';
