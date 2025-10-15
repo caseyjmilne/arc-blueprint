@@ -1,11 +1,10 @@
-import { useEffect, useState, useRef } from '@wordpress/element';
+import { useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import SimpleMDE from 'react-simplemde-editor';
 import 'easymde/dist/easymde.min.css';
 
 const MarkdownField = ({ fieldName, fieldConfig, register, error, setValue, watch }) => {
   const [isReady, setIsReady] = useState(false);
-  const editorRef = useRef(null);
-  const currentValue = watch ? watch(fieldName) : '';
+  const initialValue = useRef(watch ? watch(fieldName) : '');
 
   // Register the field with react-hook-form
   useEffect(() => {
@@ -21,7 +20,8 @@ const MarkdownField = ({ fieldName, fieldConfig, register, error, setValue, watc
     }
   };
 
-  const editorOptions = {
+  // Memoize editor options to prevent re-initialization on every render
+  const editorOptions = useMemo(() => ({
     spellChecker: false,
     placeholder: fieldConfig.placeholder || 'Enter markdown text...',
     status: false,
@@ -45,7 +45,7 @@ const MarkdownField = ({ fieldName, fieldConfig, register, error, setValue, watc
     ],
     minHeight: fieldConfig.minHeight || '200px',
     maxHeight: fieldConfig.maxHeight || '500px',
-  };
+  }), [fieldConfig.placeholder, fieldConfig.minHeight, fieldConfig.maxHeight]);
 
   if (!isReady) {
     return <div>Loading editor...</div>;
@@ -66,10 +66,9 @@ const MarkdownField = ({ fieldName, fieldConfig, register, error, setValue, watc
       <div className={`markdown-editor-wrapper ${error ? 'border-red-500' : ''}`}>
         <SimpleMDE
           id={fieldName}
-          value={currentValue || ''}
+          value={initialValue.current || ''}
           onChange={handleChange}
           options={editorOptions}
-          ref={editorRef}
         />
       </div>
       {error && (

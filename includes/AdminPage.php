@@ -2,8 +2,6 @@
 
 namespace ARC\Blueprint;
 
-use ARC\Blueprint\Forms\Render;
-
 class AdminPage
 {
     /**
@@ -12,6 +10,51 @@ class AdminPage
     public function __construct()
     {
         add_action('admin_menu', [$this, 'addMenuPage']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueueAssets']);
+    }
+
+    /**
+     * Enqueue admin assets
+     */
+    public function enqueueAssets($hook)
+    {
+        // Only load on our admin page
+        if ($hook !== 'toplevel_page_arc-blueprint') {
+            return;
+        }
+
+        $asset_file = plugin_dir_path(__DIR__) . 'apps/admin/build/index.asset.php';
+
+        if (!file_exists($asset_file)) {
+            return;
+        }
+
+        $asset = include $asset_file;
+
+        wp_enqueue_script(
+            'arc-blueprint-admin',
+            plugins_url('apps/admin/build/index.js', dirname(__FILE__)),
+            $asset['dependencies'],
+            $asset['version'],
+            true
+        );
+
+        wp_enqueue_style(
+            'arc-blueprint-admin',
+            plugins_url('apps/admin/build/index.css', dirname(__FILE__)),
+            [],
+            $asset['version']
+        );
+
+        // Pass REST API settings to JavaScript
+        wp_localize_script(
+            'arc-blueprint-admin',
+            'wpApiSettings',
+            [
+                'root' => esc_url_raw(rest_url()),
+                'nonce' => wp_create_nonce('wp_rest'),
+            ]
+        );
     }
 
     /**
@@ -25,8 +68,8 @@ class AdminPage
             'manage_options',          // Capability
             'arc-blueprint',           // Menu slug
             [$this, 'renderPage'],     // Callback function
-            'dashicons-admin-generic', // Icon
-            30                         // Position
+            'dashicons-clipboard', // Icon
+            82                         // Position
         );
     }
 
@@ -35,28 +78,8 @@ class AdminPage
      */
     public function renderPage()
     {
-        $schemas = SchemaRegistry::all();
         ?>
-        <div class="wrap">
-            <h1>ARC Blueprint</h1>
-
-            <h2>Registered Schemas</h2>
-            <ul>
-                <?php foreach ($schemas as $key => $schemaClass): ?>
-                    <li><strong><?php echo esc_html($key); ?>:</strong> <?php echo esc_html($schemaClass); ?></li>
-                <?php endforeach; ?>
-            </ul>
-
-            <h2>Test Forms</h2>
-
-            <h3>Create Mode: "ticket"</h3>
-            <?php Render::form('ticket'); ?>
-
-            <hr style="margin: 40px 0;">
-
-            <h3>Edit Mode: "ticket" (Record ID: 2)</h3>
-            <?php Render::form('ticket', 2); ?>
-        </div>
+        <div id="arc-blueprint-admin-root"></div>
         <?php
     }
 }

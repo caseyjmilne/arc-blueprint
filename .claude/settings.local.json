@@ -9,7 +9,10 @@
       "Bash(npm install)",
       "Read(//c/Users/HP/Local Sites/trackify/app/public/**)",
       "Bash(git rm:*)",
-      "Bash(git tag:*)"
+      "Bash(git tag:*)",
+      "Bash(find:*)",
+      "Bash(npm install:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

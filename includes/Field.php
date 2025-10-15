@@ -99,7 +99,43 @@ class Field
         $this->attributes['helpText'] = $text;
         return $this;
     }
-    
+
+    public function min($value)
+    {
+        $this->attributes['min'] = $value;
+        return $this;
+    }
+
+    public function max($value)
+    {
+        $this->attributes['max'] = $value;
+        return $this;
+    }
+
+    public function step($value)
+    {
+        $this->attributes['step'] = $value;
+        return $this;
+    }
+
+    public function append($text)
+    {
+        $this->attributes['append'] = $text;
+        return $this;
+    }
+
+    public function prepend($text)
+    {
+        $this->attributes['prepend'] = $text;
+        return $this;
+    }
+
+    public function sortableChildren($config)
+    {
+        $this->attributes['sortable_children'] = $config;
+        return $this;
+    }
+
     /**
      * Get field metadata
      */
@@ -226,6 +262,11 @@ class Field
             case 'integer':
                 $type = 'INT';
                 break;
+            case 'range':
+                // Range fields can be INT or DECIMAL depending on step
+                $step = $this->getAttribute('step', 1);
+                $type = ($step < 1) ? 'DECIMAL(10,2)' : 'INT';
+                break;
             case 'decimal':
                 $type = 'DECIMAL(10,2)';
                 break;
@@ -233,10 +274,34 @@ class Field
                 $type = 'TINYINT(1)';
                 break;
             case 'date':
+            case 'date_picker':
                 $type = 'DATE';
                 break;
             case 'datetime':
+            case 'datetime_picker':
                 $type = 'DATETIME';
+                break;
+            case 'time_picker':
+                $type = 'TIME';
+                break;
+            case 'image':
+            case 'file':
+                // Store attachment ID as BIGINT UNSIGNED
+                $type = 'BIGINT(20) UNSIGNED';
+                break;
+            case 'gallery':
+            case 'link':
+                // Store JSON object/array
+                $type = 'LONGTEXT';
+                break;
+            case 'oembed':
+                // Store embed URL as TEXT
+                $type = 'TEXT';
+                break;
+            case 'post_object':
+            case 'user':
+                // Store post/user ID as BIGINT UNSIGNED
+                $type = 'BIGINT(20) UNSIGNED';
                 break;
         }
         
@@ -272,5 +337,23 @@ Field::registerType('text', Field::class);
 Field::registerType('textarea', Field::class);
 Field::registerType('number', Field::class);
 Field::registerType('email', Field::class);
+Field::registerType('url', Field::class);
+Field::registerType('password', Field::class);
+Field::registerType('range', Field::class);
+Field::registerType('radio', Field::class);
+Field::registerType('button_group', Field::class);
+Field::registerType('wysiwyg', Field::class);
+Field::registerType('color', Field::class);
 Field::registerType('date', Field::class);
 Field::registerType('boolean', Field::class);
+Field::registerType('sortable_children', \ARC\Blueprint\FieldType\SortableChildrenField::class);
+Field::registerType('date_picker', Field::class);
+Field::registerType('time_picker', Field::class);
+Field::registerType('datetime_picker', Field::class);
+Field::registerType('image', Field::class);
+Field::registerType('file', Field::class);
+Field::registerType('gallery', Field::class);
+Field::registerType('link', Field::class);
+Field::registerType('oembed', Field::class);
+Field::registerType('post_object', Field::class);
+Field::registerType('user', Field::class);

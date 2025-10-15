@@ -165,18 +165,18 @@ class SchemaRoutes
             // Get route configuration from collection
             $routes = $collection->getRoutes();
             $restNamespace = $collection->getRestNamespace();
-            $routePrefix = $collection->getRoutePrefix();
+            $route = $collection->getRoute();
 
             // Build the full API endpoint URL
             $baseUrl = rest_url();
-            $apiEndpoint = $baseUrl . $restNamespace . '/' . $routePrefix;
+            $apiEndpoint = $baseUrl . $restNamespace . '/' . $route;
 
             $collectionData = [
                 'class' => $collectionClass,
                 'model' => $modelData,
                 'routes' => [
                     'namespace' => $restNamespace,
-                    'prefix' => $routePrefix,
+                    'route' => $route,
                     'endpoint' => $apiEndpoint,
                     'methods' => $routes['methods'] ?? [],
                 ],
