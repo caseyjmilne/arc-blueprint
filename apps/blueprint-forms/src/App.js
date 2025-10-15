@@ -2,7 +2,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getSchema, createRecord, getRecord, updateRecord } from './services/api';
-import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField, NumberField, URLField, PasswordField, RangeField, RadioField, ButtonGroupField, WysiwygField, ColorPickerField, ReadOnlyField, HiddenField, SortableChildrenField, DatePickerField, TimePickerField, DateTimePickerField } from './components/field-types';
+import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField, NumberField, URLField, PasswordField, RangeField, RadioField, ButtonGroupField, WysiwygField, ColorPickerField, ReadOnlyField, HiddenField, SortableChildrenField, DatePickerField, TimePickerField, DateTimePickerField, ImageField, FileField, GalleryField, LinkField, OEmbedField, PostObjectField, UserField } from './components/field-types';
 import { generateZodSchema } from './utils/zodSchemaGenerator';
 
 const App = ({ schemaKey, recordId }) => {
@@ -427,6 +427,104 @@ const App = ({ schemaKey, recordId }) => {
             if (configType === 'datetime_picker') {
               return (
                 <DateTimePickerField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'image') {
+              return (
+                <ImageField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'file') {
+              return (
+                <FileField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'gallery') {
+              return (
+                <GalleryField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'link') {
+              return (
+                <LinkField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'oembed') {
+              return (
+                <OEmbedField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'post_object') {
+              return (
+                <PostObjectField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'user') {
+              return (
+                <UserField
                   key={fieldName}
                   fieldName={fieldName}
                   fieldConfig={fieldConfig}

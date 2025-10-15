@@ -284,6 +284,25 @@ class Field
             case 'time_picker':
                 $type = 'TIME';
                 break;
+            case 'image':
+            case 'file':
+                // Store attachment ID as BIGINT UNSIGNED
+                $type = 'BIGINT(20) UNSIGNED';
+                break;
+            case 'gallery':
+            case 'link':
+                // Store JSON object/array
+                $type = 'LONGTEXT';
+                break;
+            case 'oembed':
+                // Store embed URL as TEXT
+                $type = 'TEXT';
+                break;
+            case 'post_object':
+            case 'user':
+                // Store post/user ID as BIGINT UNSIGNED
+                $type = 'BIGINT(20) UNSIGNED';
+                break;
         }
         
         $nullable = $this->getAttribute('required') ? 'NOT NULL' : 'NULL';
@@ -331,3 +350,10 @@ Field::registerType('sortable_children', \ARC\Blueprint\FieldType\SortableChildr
 Field::registerType('date_picker', Field::class);
 Field::registerType('time_picker', Field::class);
 Field::registerType('datetime_picker', Field::class);
+Field::registerType('image', Field::class);
+Field::registerType('file', Field::class);
+Field::registerType('gallery', Field::class);
+Field::registerType('link', Field::class);
+Field::registerType('oembed', Field::class);
+Field::registerType('post_object', Field::class);
+Field::registerType('user', Field::class);

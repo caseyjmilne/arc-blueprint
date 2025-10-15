@@ -373,6 +373,159 @@ Combined date and time picker.
 - `maxDate` - Maximum selectable date
 - Stores as `DATETIME` in database (YYYY-MM-DD HH:MM:SS format)
 
+### Media Fields
+
+#### image
+Image picker using WordPress Media Library. Stores the attachment ID.
+
+```php
+'featured_image' => [
+    'type' => 'image',
+    'label' => 'Featured Image',
+    'required' => true,
+    'placeholder' => 'Select image...',
+    'buttonText' => 'Select Image',
+    'mediaTitle' => 'Select Featured Image',
+    'mediaButtonText' => 'Use this image',
+    'imageSize' => 'medium', // thumbnail, medium, large, full
+    'previewHeight' => '200px',
+    'description' => 'Click to select an image from the media library',
+]
+```
+
+**Configuration Options:**
+- `buttonText` - Text for the "Select Image" button
+- `mediaTitle` - Title for the WordPress media modal
+- `mediaButtonText` - Text for the media modal's action button
+- `imageSize` - Which image size to use for preview (thumbnail, medium, large, full)
+- `previewHeight` - Max height for image preview (default: '200px')
+- `description` - Help text shown in empty state
+- Stores as `BIGINT(20) UNSIGNED` (WordPress attachment ID)
+- Displays image preview with change/remove options
+
+#### file
+File picker using WordPress Media Library. Stores the attachment ID.
+
+```php
+'document' => [
+    'type' => 'file',
+    'label' => 'Document',
+    'required' => false,
+    'placeholder' => 'Select file...',
+    'buttonText' => 'Select File',
+    'mediaTitle' => 'Select Document',
+    'mediaButtonText' => 'Use this file',
+    'allowedTypes' => ['application/pdf', 'application/msword'], // Optional
+    'description' => 'Click to select a file from the media library',
+]
+```
+
+**Configuration Options:**
+- `buttonText` - Text for the "Select File" button
+- `mediaTitle` - Title for the WordPress media modal
+- `mediaButtonText` - Text for the media modal's action button
+- `allowedTypes` - Array of allowed MIME types (optional, restricts file selection)
+- `description` - Help text shown in empty state
+- Stores as `BIGINT(20) UNSIGNED` (WordPress attachment ID)
+- Displays file info with icon, name, size, type, and download link
+- Common MIME type examples:
+  - PDFs: `'application/pdf'`
+  - Word: `'application/msword'`, `'application/vnd.openxmlformats-officedocument.wordprocessingml.document'`
+  - Excel: `'application/vnd.ms-excel'`, `'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'`
+  - Images: `'image/*'` or specific like `'image/jpeg'`, `'image/png'`
+  - Videos: `'video/*'`
+  - Audio: `'audio/*'`
+
+#### gallery
+Multiple image selection with drag-and-drop ordering, similar to ACF Gallery field.
+
+```php
+'image_gallery' => [
+    'type' => 'gallery',
+    'label' => 'Image Gallery',
+    'required' => false,
+    'buttonText' => 'Add Images',
+    'mediaTitle' => 'Select Gallery Images',
+    'mediaButtonText' => 'Add to gallery',
+    'thumbnailSize' => 'thumbnail', // thumbnail, medium, large, full
+    'maxImages' => 10, // Optional: limit number of images
+    'description' => 'Click to select images from the media library',
+]
+```
+
+**Configuration Options:**
+- `buttonText` - Text for the "Add Images" button
+- `mediaTitle` - Title for the WordPress media modal
+- `mediaButtonText` - Text for the media modal's action button
+- `thumbnailSize` - Which image size to use for grid thumbnails (thumbnail, medium, large, full)
+- `maxImages` - Maximum number of images allowed (optional)
+- `description` - Help text shown in empty state
+- Stores as `LONGTEXT` (JSON array of attachment IDs: `[1,5,12,8]`)
+- Features:
+  - Multiple image selection
+  - Grid display of thumbnails
+  - Drag-and-drop reordering
+  - Remove individual images
+  - Clear all button
+  - Visual drag indicators
+  - Order numbers on each image
+  - Edit gallery to add/remove images
+
+**Usage Notes:**
+- Images are stored as a JSON array of WordPress attachment IDs
+- Order is preserved exactly as arranged by drag-and-drop
+- When editing, previously selected images are pre-selected in the media library
+- To retrieve images in PHP, decode the JSON: `json_decode($gallery_field, true)`
+
+#### link
+Link field combining URL, title, and target - similar to ACF Link field.
+
+```php
+'cta_link' => [
+    'type' => 'link',
+    'label' => 'Call to Action Link',
+    'required' => false,
+    'urlPlaceholder' => 'https://example.com',
+    'titlePlaceholder' => 'Click here',
+    'addButtonText' => 'Add Link',
+    'enableTarget' => true, // Show target selector (default: true)
+    'requireTitle' => false, // Make title field required (default: false)
+]
+```
+
+**Configuration Options:**
+- `urlPlaceholder` - Placeholder for URL input
+- `titlePlaceholder` - Placeholder for link text input
+- `addButtonText` - Text for "Add Link" button
+- `enableTarget` - Show/hide target selector (default: true)
+- `requireTitle` - Make link text required (default: false)
+- Stores as `LONGTEXT` (JSON object: `{"url":"https://...","title":"Link Text","target":"_blank"}`)
+- Features:
+  - URL input (required)
+  - Link text/title input (optional)
+  - Target selector (_self or _blank)
+  - Display mode showing formatted link info
+  - Edit/Remove buttons
+  - Link preview with clickable URL
+  - Icon indicator
+
+**Data Structure:**
+```json
+{
+  "url": "https://example.com",
+  "title": "Click Here",
+  "target": "_blank"
+}
+```
+
+**Usage in PHP:**
+```php
+$link_data = json_decode($cta_link, true);
+echo '<a href="' . esc_url($link_data['url']) . '" target="' . esc_attr($link_data['target']) . '">';
+echo esc_html($link_data['title']);
+echo '</a>';
+```
+
 #### readonly
 Display-only field (not editable).
 
