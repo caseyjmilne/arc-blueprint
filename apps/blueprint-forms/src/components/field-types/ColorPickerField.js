@@ -89,7 +89,7 @@ const ColorPickerField = ({ fieldName, fieldConfig, register, setValue, watch, e
                   }
                 }}
                 className={`w-8 h-8 rounded border-2 transition-transform hover:scale-110 ${
-                  currentValue.toUpperCase() === color.toUpperCase()
+                  currentValue?.toUpperCase() === color.toUpperCase()
                     ? 'border-blue-500 ring-2 ring-blue-200'
                     : 'border-gray-300'
                 }`}
