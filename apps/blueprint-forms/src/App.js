@@ -2,7 +2,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getSchema, createRecord, getRecord, updateRecord } from './services/api';
-import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField, NumberField, URLField, PasswordField, RangeField, RadioField, ButtonGroupField, WysiwygField, ColorPickerField, ReadOnlyField, HiddenField } from './components/field-types';
+import { SelectField, TextField, TextareaField, CheckboxField, EmailField, MarkdownField, RelationField, NumberField, URLField, PasswordField, RangeField, RadioField, ButtonGroupField, WysiwygField, ColorPickerField, ReadOnlyField, HiddenField, SortableChildrenField, DatePickerField, TimePickerField, DateTimePickerField } from './components/field-types';
 import { generateZodSchema } from './utils/zodSchemaGenerator';
 
 const App = ({ schemaKey, recordId }) => {
@@ -185,6 +185,17 @@ const App = ({ schemaKey, recordId }) => {
             const fieldError = errors[fieldName];
 
             // Render based on configured type or inferred type
+            if (configType === 'sortable_children') {
+              return (
+                <SortableChildrenField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  recordId={recordId}
+                />
+              );
+            }
+
             if (configType === 'relation') {
               return (
                 <RelationField
@@ -381,6 +392,48 @@ const App = ({ schemaKey, recordId }) => {
                   fieldName={fieldName}
                   fieldConfig={fieldConfig}
                   register={register}
+                />
+              );
+            }
+
+            if (configType === 'date_picker') {
+              return (
+                <DatePickerField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'time_picker') {
+              return (
+                <TimePickerField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
+                />
+              );
+            }
+
+            if (configType === 'datetime_picker') {
+              return (
+                <DateTimePickerField
+                  key={fieldName}
+                  fieldName={fieldName}
+                  fieldConfig={fieldConfig}
+                  register={register}
+                  setValue={setValue}
+                  watch={watch}
+                  error={fieldError}
                 />
               );
             }

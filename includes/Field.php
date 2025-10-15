@@ -130,6 +130,12 @@ class Field
         return $this;
     }
 
+    public function sortableChildren($config)
+    {
+        $this->attributes['sortable_children'] = $config;
+        return $this;
+    }
+
     /**
      * Get field metadata
      */
@@ -268,10 +274,15 @@ class Field
                 $type = 'TINYINT(1)';
                 break;
             case 'date':
+            case 'date_picker':
                 $type = 'DATE';
                 break;
             case 'datetime':
+            case 'datetime_picker':
                 $type = 'DATETIME';
+                break;
+            case 'time_picker':
+                $type = 'TIME';
                 break;
         }
         
@@ -316,3 +327,7 @@ Field::registerType('wysiwyg', Field::class);
 Field::registerType('color', Field::class);
 Field::registerType('date', Field::class);
 Field::registerType('boolean', Field::class);
+Field::registerType('sortable_children', \ARC\Blueprint\FieldType\SortableChildrenField::class);
+Field::registerType('date_picker', Field::class);
+Field::registerType('time_picker', Field::class);
+Field::registerType('datetime_picker', Field::class);

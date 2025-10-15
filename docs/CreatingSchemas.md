@@ -309,6 +309,70 @@ Color picker.
 ]
 ```
 
+### Date and Time Fields
+
+#### date_picker
+Interactive date picker with calendar dropdown.
+
+```php
+'publish_date' => [
+    'type' => 'date_picker',
+    'label' => 'Publish Date',
+    'required' => true,
+    'placeholder' => 'Select date...',
+    'dateFormat' => 'MM/dd/yyyy', // Display format
+    'minDate' => '2024-01-01', // Optional
+    'maxDate' => '2025-12-31', // Optional
+]
+```
+
+**Configuration Options:**
+- `dateFormat` - Display format (default: 'MM/dd/yyyy')
+- `minDate` - Minimum selectable date (YYYY-MM-DD format)
+- `maxDate` - Maximum selectable date (YYYY-MM-DD format)
+- Stores as `DATE` in database (YYYY-MM-DD format)
+
+#### time_picker
+Time picker with dropdown selection.
+
+```php
+'meeting_time' => [
+    'type' => 'time_picker',
+    'label' => 'Meeting Time',
+    'required' => true,
+    'placeholder' => 'Select time...',
+    'timeFormat' => 'h:mm aa', // Display format
+    'timeIntervals' => 15, // Minutes between options
+]
+```
+
+**Configuration Options:**
+- `timeFormat` - Display format (default: 'h:mm aa')
+- `timeIntervals` - Minutes between time options (default: 15)
+- Stores as `TIME` in database (HH:MM:SS format)
+
+#### datetime_picker
+Combined date and time picker.
+
+```php
+'event_datetime' => [
+    'type' => 'datetime_picker',
+    'label' => 'Event Date & Time',
+    'required' => true,
+    'placeholder' => 'Select date and time...',
+    'dateTimeFormat' => 'MM/dd/yyyy h:mm aa', // Display format
+    'timeIntervals' => 30, // Minutes between time options
+    'minDate' => '2024-01-01', // Optional
+]
+```
+
+**Configuration Options:**
+- `dateTimeFormat` - Display format (default: 'MM/dd/yyyy h:mm aa')
+- `timeIntervals` - Minutes between time options (default: 15)
+- `minDate` - Minimum selectable date
+- `maxDate` - Maximum selectable date
+- Stores as `DATETIME` in database (YYYY-MM-DD HH:MM:SS format)
+
 #### readonly
 Display-only field (not editable).
 
@@ -328,6 +392,37 @@ Hidden field (not visible in forms, but submitted with data).
     'default' => '',
 ]
 ```
+
+#### sortable_children
+Displays and manages child records with drag-and-drop sorting. Perfect for parent-child relationships where children have a position field.
+
+```php
+'docs' => [
+    'type' => 'sortable_children',
+    'label' => 'Docs',
+    'sortable_children' => [
+        'endpoint' => '/wp-json/gateway/v1/docs',
+        'updateEndpoint' => '/wp-json/gateway/v1/docs', // Optional, defaults to endpoint
+        'filterBy' => 'doc_group_id',
+        'labelField' => 'title',
+        'positionField' => 'position',
+        'idField' => 'id',
+    ]
+]
+```
+
+**Configuration Options:**
+- `endpoint` (required) - API endpoint to fetch children
+- `updateEndpoint` (optional) - API endpoint to update positions (defaults to `endpoint`)
+- `filterBy` (required) - Query parameter name to filter children by parent ID
+- `labelField` (optional) - Field to display in the list (default: 'title')
+- `positionField` (optional) - Field to update for ordering (default: 'position')
+- `idField` (optional) - Primary key field (default: 'id')
+
+**How it works:**
+1. Fetches children via GET request: `{endpoint}?{filterBy}={parentId}`
+2. Displays children in a drag-and-drop sortable list
+3. On save, loops through changed items and sends PATCH request to `{updateEndpoint}/{id}` with updated position
 
 ## Advanced Examples
 
@@ -416,6 +511,62 @@ class DocGroupSchema extends Schema
             'label' => 'Position',
             'required' => false,
             'default' => 0,
+        ]
+    ];
+}
+```
+
+### Schema with Sortable Children
+
+This example shows how to use the `sortable_children` field to manage docs within a doc group:
+
+```php
+<?php
+
+namespace Waypoint\Schemas;
+
+use ARC\Blueprint\Schema;
+use Waypoint\Collections\DocGroupCollection;
+
+class DocGroupSchema extends Schema
+{
+    protected $collection = DocGroupCollection::class;
+
+    protected $fields = [
+        'title' => [
+            'type' => 'text',
+            'label' => 'Doc Group Title',
+            'required' => true,
+            'placeholder' => 'Doc group title...',
+        ],
+        'doc_set_id' => [
+            'type' => 'relation',
+            'label' => 'Doc Set',
+            'required' => true,
+            'relation' => [
+                'endpoint' => '/wp-json/gateway/v1/doc-sets',
+                'labelField' => 'name',
+                'valueField' => 'id',
+                'placeholder' => 'Select a doc set...',
+            ]
+        ],
+        'position' => [
+            'type' => 'number',
+            'label' => 'Position',
+            'required' => false,
+            'default' => 0,
+        ],
+        // Sortable children field for managing docs
+        'docs' => [
+            'type' => 'sortable_children',
+            'label' => 'Docs in this Group',
+            'sortable_children' => [
+                'endpoint' => '/wp-json/gateway/v1/docs',
+                'filterBy' => 'doc_group_id',
+                'labelField' => 'title',
+                'positionField' => 'position',
+                'idField' => 'id',
+            ]
         ]
     ];
 }
